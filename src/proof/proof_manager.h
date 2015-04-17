@@ -24,12 +24,13 @@
 #include "util/proof.h"
 
 
+
+namespace CVC4 {
+
 // forward declarations
 namespace Minisat {
   class Solver;
 }/* Minisat namespace */
-
-namespace CVC4 {
 
 namespace prop {
   class CnfStream;

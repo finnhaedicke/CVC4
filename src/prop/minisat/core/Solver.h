@@ -45,6 +45,7 @@ namespace prop {
 
 }/* CVC4 namespace */
 
+namespace CVC4 {
 namespace Minisat {
 
 //=================================================================================================
@@ -554,5 +555,6 @@ inline void     Solver::toDimacs     (const char* file, Lit p, Lit q, Lit r){ ve
 
 //=================================================================================================
 }/* Minisat namespace */
+}
 
 #endif

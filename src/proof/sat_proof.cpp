@@ -21,7 +21,7 @@
 #include "prop/minisat/minisat.h"
 
 using namespace std;
-using namespace Minisat;
+using namespace CVC4::Minisat;
 using namespace CVC4::prop;
 namespace CVC4 {
 
@@ -258,7 +258,7 @@ bool SatProof::checkResolution(ClauseId id) {
 
 /// helper methods
 
-ClauseId SatProof::getClauseId(::Minisat::CRef ref) {
+ClauseId SatProof::getClauseId(Minisat::CRef ref) {
   if(d_clauseId.find(ref) == d_clauseId.end()) {
     Debug("proof:sat") << "Missing clause \n";
   }
@@ -267,7 +267,7 @@ ClauseId SatProof::getClauseId(::Minisat::CRef ref) {
 }
 
 
-ClauseId SatProof::getClauseId(::Minisat::Lit lit) {
+ClauseId SatProof::getClauseId(Minisat::Lit lit) {
   Assert(d_unitId.find(toInt(lit)) != d_unitId.end());
   return d_unitId[toInt(lit)];
 }
@@ -297,11 +297,11 @@ bool SatProof::isUnit(ClauseId id) {
   return d_idUnit.find(id) != d_idUnit.end();
 }
 
-bool SatProof::isUnit(::Minisat::Lit lit) {
+bool SatProof::isUnit(Minisat::Lit lit) {
   return d_unitId.find(toInt(lit)) != d_unitId.end();
 }
 
-ClauseId SatProof::getUnitId(::Minisat::Lit lit) {
+ClauseId SatProof::getUnitId(Minisat::Lit lit) {
   Assert(isUnit(lit));
   return d_unitId[toInt(lit)];
 }
@@ -317,7 +317,6 @@ bool SatProof::isInputClause(ClauseId id) {
 bool SatProof::isLemmaClause(ClauseId id) {
   return (d_lemmaClauses.find(id) != d_lemmaClauses.end());
 }
-
 
 void SatProof::print(ClauseId id) {
   if (d_deleted.find(id) != d_deleted.end()) {
@@ -364,7 +363,7 @@ void SatProof::printRes(ResChain* res) {
 
 /// registration methods
 
-ClauseId SatProof::registerClause(::Minisat::CRef clause, ClauseKind kind) {
+ClauseId SatProof::registerClause(Minisat::CRef clause, ClauseKind kind) {
   Assert(clause != CRef_Undef);
   ClauseIdMap::iterator it = d_clauseId.find(clause);
   if (it == d_clauseId.end()) {
@@ -384,7 +383,8 @@ ClauseId SatProof::registerClause(::Minisat::CRef clause, ClauseKind kind) {
   return d_clauseId[clause];
 }
 
-ClauseId SatProof::registerUnitClause(::Minisat::Lit lit, ClauseKind kind) {
+
+ClauseId SatProof::registerUnitClause(Minisat::Lit lit, ClauseKind kind) {
   UnitIdMap::iterator it = d_unitId.find(toInt(lit));
   if (it == d_unitId.end()) {
     ClauseId newId = d_idCounter++;
@@ -403,7 +403,7 @@ ClauseId SatProof::registerUnitClause(::Minisat::Lit lit, ClauseKind kind) {
   return d_unitId[toInt(lit)];
 }
 
-void SatProof::removedDfs(::Minisat::Lit lit, LitSet* removedSet, LitVector& removeStack, LitSet& inClause, LitSet& seen) {
+void SatProof::removedDfs(Minisat::Lit lit, LitSet* removedSet, LitVector& removeStack, LitSet& inClause, LitSet& seen) {
   // if we already added the literal return
   if (seen.count(lit)) {
     return;
@@ -479,13 +479,13 @@ void SatProof::registerResolution(ClauseId id, ResChain* res) {
 
 /// recording resolutions
 
-void SatProof::startResChain(::Minisat::CRef start) {
+void SatProof::startResChain(Minisat::CRef start) {
   ClauseId id = getClauseId(start);
   ResChain* res = new ResChain(id);
   d_resStack.push_back(res);
 }
 
-void SatProof::addResolutionStep(::Minisat::Lit lit, ::Minisat::CRef clause, bool sign) {
+void SatProof::addResolutionStep(Minisat::Lit lit, Minisat::CRef clause, bool sign) {
   ClauseId id = registerClause(clause);
   ResChain* res = d_resStack.back();
   res->addStep(lit, id, sign);
@@ -500,7 +500,7 @@ void SatProof::endResChain(CRef clause) {
 }
 
 
-void SatProof::endResChain(::Minisat::Lit lit) {
+void SatProof::endResChain(Minisat::Lit lit) {
   Assert(d_resStack.size() > 0);
   ClauseId id = registerUnitClause(lit);
   ResChain* res = d_resStack.back();
@@ -508,7 +508,7 @@ void SatProof::endResChain(::Minisat::Lit lit) {
   d_resStack.pop_back();
 }
 
-void SatProof::storeLitRedundant(::Minisat::Lit lit) {
+void SatProof::storeLitRedundant(Minisat::Lit lit) {
   Assert(d_resStack.size() > 0);
   ResChain* res = d_resStack.back();
   res->addRedundantLit(lit);
@@ -516,17 +516,17 @@ void SatProof::storeLitRedundant(::Minisat::Lit lit) {
 
 /// constructing resolutions
 
-void SatProof::resolveOutUnit(::Minisat::Lit lit) {
+void SatProof::resolveOutUnit(Minisat::Lit lit) {
   ClauseId id = resolveUnit(~lit);
   ResChain* res = d_resStack.back();
   res->addStep(lit, id, !sign(lit));
 }
 
-void SatProof::storeUnitResolution(::Minisat::Lit lit) {
+void SatProof::storeUnitResolution(Minisat::Lit lit) {
   resolveUnit(lit);
 }
 
-ClauseId SatProof::resolveUnit(::Minisat::Lit lit) {
+ClauseId SatProof::resolveUnit(Minisat::Lit lit) {
   // first check if we already have a resolution for lit
   if(isUnit(lit)) {
     ClauseId id = getClauseId(lit);
@@ -561,18 +561,18 @@ void SatProof::toStream(std::ostream& out) {
   Unimplemented("native proof printing not supported yet");
 }
 
-void SatProof::storeUnitConflict(::Minisat::Lit conflict_lit, ClauseKind kind) {
+void SatProof::storeUnitConflict(Minisat::Lit conflict_lit, ClauseKind kind) {
   Assert(!d_storedUnitConflict);
   d_unitConflictId = registerUnitClause(conflict_lit, kind);
   d_storedUnitConflict = true;
   Debug("proof:sat:detailed") <<"storeUnitConflict " << d_unitConflictId << "\n";
 }
 
-void SatProof::finalizeProof(::Minisat::CRef conflict_ref) {
+void SatProof::finalizeProof(Minisat::CRef conflict_ref) {
   Assert(d_resStack.size() == 0);
-  Assert(conflict_ref != ::Minisat::CRef_Undef);
+  Assert(conflict_ref != Minisat::CRef_Undef);
   ClauseId conflict_id;
-  if (conflict_ref == ::Minisat::CRef_Lazy) {
+  if (conflict_ref == Minisat::CRef_Lazy) {
     Assert(d_storedUnitConflict);
     conflict_id = d_unitConflictId;
 
@@ -610,7 +610,7 @@ void SatProof::finalizeProof(::Minisat::CRef conflict_ref) {
 
 /// CRef manager
 
-void SatProof::updateCRef(::Minisat::CRef oldref, ::Minisat::CRef newref) {
+void SatProof::updateCRef(Minisat::CRef oldref, Minisat::CRef newref) {
   if (d_clauseId.find(oldref) == d_clauseId.end()) {
     return;
   }
@@ -763,6 +763,4 @@ void LFSCSatProof::printResolutions(std::ostream& out, std::ostream& paren) {
   printResolution(d_emptyClauseId, out, paren);
 }
 
-
 } /* CVC4 namespace */
-
